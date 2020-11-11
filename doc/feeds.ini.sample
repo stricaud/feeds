@@ -1,0 +1,26 @@
+misp_url=<yourmisp_instance>
+misp_key=<yourkey>
+cache_storage=./feeds-cache
+devo_host=collector-se.devo.io
+devo_port=443
+devo_chain=<chain>
+devo_cert=<cert>
+devo_key=<key>
+send=true
+log_file=feeds.log
+
+sightingdb_host=127.0.0.1
+sightingdb_port=9999
+sightingdb_key=changeme
+sightingdb_namespace=feeds
+
+ssl_verify=false
+
+[CIRCL OSINT Feed]
+enabled=true
+provider=CIRCL
+input=Network
+url=https://www.circl.lu/doc/misp/feed-osint
+distribution=everybody
+tags=
+schedule=3600
