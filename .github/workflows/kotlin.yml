@@ -1,0 +1,31 @@
+name: "Kotlin CI"
+on: [ push ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Cache Gradle packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+      - name: Test with Gradle
+        run: ./gradlew test
+      - name: Build with Gradle
+        run: ./gradlew build -x test
+      - name: Get version
+        id: version
+        run: |
+          echo "::set-output name=version::$(./gradlew showVersion -q -Prelease.quiet | cut -d' ' -f2)"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: feeds-${{ steps.version.outputs.version }}.tar
+          path: build/distributions/feeds-${{ steps.version.outputs.version }}.tar
+

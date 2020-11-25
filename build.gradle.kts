@@ -6,7 +6,6 @@ plugins {
     id("org.jetbrains.dokka") version Versions.kotlinVersion
     id("io.gitlab.arturbosch.detekt") version ("1.14.2")
     id("io.wusa.semver-git-plugin") version ("2.3.0")
-
 }
 
 group = "com.devo"
@@ -39,8 +38,7 @@ semver {
     }
 }
 
-
-val javaVersion = JavaVersion.VERSION_11.toString()
+val javaVersion = JavaVersion.VERSION_1_8.toString()
 
 tasks.compileKotlin {
     sourceCompatibility = javaVersion
@@ -58,6 +56,10 @@ tasks.compileTestKotlin {
     }
 }
 
+tasks.detekt {
+    jvmTarget = javaVersion
+}
+
 tasks.test {
     finalizedBy(tasks.jacocoTestReport)
 }
@@ -68,6 +70,7 @@ application {
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
