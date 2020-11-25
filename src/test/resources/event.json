@@ -1,0 +1,137 @@
+{
+  "Event": {
+    "info": "OSINT - New Arena Crysis Ransomware Variant Released",
+    "Tag": [
+      {
+        "colour": "#0088cc",
+        "exportable": true,
+        "name": "misp-galaxy:ransomware=\"Dharma Ransomware\""
+      },
+      {
+        "colour": "#004646",
+        "exportable": true,
+        "name": "type:OSINT"
+      },
+      {
+        "colour": "#ffffff",
+        "exportable": true,
+        "name": "tlp:white"
+      },
+      {
+        "colour": "#2c4f00",
+        "exportable": true,
+        "name": "malware_classification:malware-category=\"Ransomware\""
+      },
+      {
+        "colour": "#00223b",
+        "exportable": true,
+        "name": "osint:source-type=\"blog-post\""
+      }
+    ],
+    "publish_timestamp": "1503930329",
+    "timestamp": "1503930276",
+    "analysis": "2",
+    "Attribute": [
+      {
+        "comment": "",
+        "category": "External analysis",
+        "uuid": "59a3d0bb-a884-438b-b79f-4005950d210f",
+        "timestamp": "1503930272",
+        "to_ids": false,
+        "value": "https://www.bleepingcomputer.com/news/security/new-arena-crysis-ransomware-variant-released/",
+        "Tag": [
+          {
+            "colour": "#00223b",
+            "exportable": true,
+            "name": "osint:source-type=\"blog-post\""
+          }
+        ],
+        "disable_correlation": false,
+        "object_relation": null,
+        "type": "link"
+      },
+      {
+        "comment": "",
+        "category": "External analysis",
+        "uuid": "59a3d0cd-96f4-4f05-9ec5-40a7950d210f",
+        "timestamp": "1503930272",
+        "to_ids": false,
+        "value": "Yesterday, ID-Ransomware's Michael Gillespie discovered a new variant of the Crysis/Dharma ransomware that is appending the .arena extension to encrypted files. It is not known exactly how this variant is being distributed, but in the past Crysis was typically spread by hacking into Remote Desktop Services and manually installing the ransomware.",
+        "Tag": [
+          {
+            "colour": "#00223b",
+            "exportable": true,
+            "name": "osint:source-type=\"blog-post\""
+          }
+        ],
+        "disable_correlation": false,
+        "object_relation": null,
+        "type": "comment"
+      },
+      {
+        "comment": "",
+        "category": "Payload delivery",
+        "uuid": "59a3d176-7af0-4784-a3aa-47b3950d210f",
+        "timestamp": "1503930272",
+        "to_ids": true,
+        "value": "a683494fc0d017fd3b4638f8b84caaaac145cc28bc211bd7361723368b4bb21e",
+        "disable_correlation": false,
+        "object_relation": null,
+        "type": "sha256"
+      },
+      {
+        "comment": "Email to contact in ransom note",
+        "category": "Payload delivery",
+        "uuid": "59a3d190-0bb8-4bcd-b0d4-45df950d210f",
+        "timestamp": "1503930272",
+        "to_ids": true,
+        "value": "chivas@aolonline.top",
+        "disable_correlation": false,
+        "object_relation": null,
+        "type": "email-src"
+      },
+      {
+        "comment": "- Xchecked via VT: a683494fc0d017fd3b4638f8b84caaaac145cc28bc211bd7361723368b4bb21e",
+        "category": "Payload delivery",
+        "uuid": "59a427a0-9500-426e-a8d8-dfd702de0b81",
+        "timestamp": "1503930272",
+        "to_ids": true,
+        "value": "60cbe0e3a70ef3d56810bd9178ce232529c09c5f",
+        "disable_correlation": false,
+        "object_relation": null,
+        "type": "sha1"
+      },
+      {
+        "comment": "- Xchecked via VT: a683494fc0d017fd3b4638f8b84caaaac145cc28bc211bd7361723368b4bb21e",
+        "category": "Payload delivery",
+        "uuid": "59a427a0-f6f8-4178-9e7d-dfd702de0b81",
+        "timestamp": "1503930272",
+        "to_ids": true,
+        "value": "f2679bdabe46e10edc6352fff3c829bc",
+        "disable_correlation": false,
+        "object_relation": null,
+        "type": "md5"
+      },
+      {
+        "comment": "- Xchecked via VT: a683494fc0d017fd3b4638f8b84caaaac145cc28bc211bd7361723368b4bb21e",
+        "category": "External analysis",
+        "uuid": "59a427a0-16f0-4270-a9a7-dfd702de0b81",
+        "timestamp": "1503930272",
+        "to_ids": false,
+        "value": "https://www.virustotal.com/file/a683494fc0d017fd3b4638f8b84caaaac145cc28bc211bd7361723368b4bb21e/analysis/1503922016/",
+        "disable_correlation": false,
+        "object_relation": null,
+        "type": "link"
+      }
+    ],
+    "extends_uuid": "",
+    "published": true,
+    "date": "2017-08-25",
+    "Orgc": {
+      "uuid": "55f6ea5e-2c60-40e5-964f-47a8950d210f",
+      "name": "CIRCL"
+    },
+    "threat_level_id": "3",
+    "uuid": "59a3d08d-5dc8-4153-bc7c-456d950d210f"
+  }
+}
