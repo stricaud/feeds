@@ -1,0 +1,11 @@
+# Exclude everything
+*
+
+# Includes
+!buildSrc
+!gradle
+!src
+!build.gradle.kts
+!gradle.properties
+!gradlew
+!settings.gradle.kts
