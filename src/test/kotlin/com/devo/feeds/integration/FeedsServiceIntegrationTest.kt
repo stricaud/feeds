@@ -28,21 +28,21 @@ class FeedsServiceIntegrationTest {
 
     @Before
     fun setUp() {
-        service = FeedsService(ConfigFactory.empty())
-    }
-
-    @KtorExperimentalAPI
-    @Test
-    fun `Should retrieve configured feeds`() {
         val config = ConfigFactory
             .parseMap(
                 mapOf(
                     "feeds.misp.url" to "http://localhost:${server.port}",
                     "feeds.misp.key" to ""
                 )
-            )
+            ).withFallback(ConfigFactory.load())
+        service = FeedsService(config)
+    }
+
+    @KtorExperimentalAPI
+    @Test
+    fun `Should retrieve configured feeds`() {
         runBlocking {
-            val feedsAndTags = service.getConfiguredFeeds(config)
+            val feedsAndTags = service.getConfiguredFeeds()
             assertThat(feedsAndTags.size, equalTo(3))
             feedsAndTags.withIndex().forEach { (i, value) ->
                 assertThat(value.feed.id, equalTo(i.toString()))

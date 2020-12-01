@@ -4,8 +4,8 @@ import com.devo.feeds.data.misp.Attribute
 import com.devo.feeds.data.misp.Event
 import com.devo.feeds.feed.Feed
 import com.devo.feeds.feed.FeedException
-import com.devo.feeds.storage.AttributeCache
 import com.devo.feeds.output.AttributeOutput
+import com.devo.feeds.storage.AttributeCache
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.isA
@@ -50,7 +50,6 @@ class FeedTest {
             val expectedAttrUUID = Feed.generateAttributeUUID("5", attr).toString()
             every { cache.getAttributeId(feed.name, "5", expectedAttrUUID) } returns 5L + i
         }
-
     }
 
     @ObsoleteCoroutinesApi
@@ -137,7 +136,6 @@ class FeedTest {
                 }
             }
         }
-
     }
 
     @ObsoleteCoroutinesApi
@@ -161,7 +159,6 @@ class FeedTest {
             )
         }
 
-
         val duplicateEvent = events[0]
         duplicateEvent.attributes.forEach { attr ->
             every { cache.attributeHasSent(feed.name, duplicateEvent.id!!, attr.uuid!!) } returns true
@@ -181,7 +178,6 @@ class FeedTest {
             assertThat(attributesByEventId.containsKey(duplicateEvent.id), equalTo(false))
             assertThat(attributesByEventId[updatedEvent.id]!!.size, equalTo(attributeCount - 3))
         }
-
     }
 
     @ObsoleteCoroutinesApi
@@ -202,5 +198,4 @@ class FeedTest {
         assertThat(exception.cause!!, isA<SocketException>())
         assertThat(exception.cause!!.message, equalTo("ALSO BAD"))
     }
-
 }

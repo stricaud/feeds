@@ -2,7 +2,7 @@ package com.devo.feeds.output
 
 import com.cloudbees.syslog.sender.TcpSyslogMessageSender
 import com.devo.feeds.data.misp.DevoMispAttribute
-import kotlinx.coroutines.Dispatchers
+import com.typesafe.config.Config
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.async
@@ -12,32 +12,53 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
+import kotlin.coroutines.CoroutineContext
+import kotlin.properties.Delegates
 
-class DevoAttributeOutput(
-    private val host: String,
-    private val port: Int,
-    private val credentials: X509Credentials,
-    private val connections: Int,
-    private val tag: String = "threatintel.misp.attributes",
-) : AttributeOutput {
+class DevoAttributeOutput : AttributeOutput {
 
     private val log = KotlinLogging.logger { }
+    private val tag = "threatintel.misp.attributes"
+    private val syslogSenders = mutableMapOf<String, TcpSyslogMessageSender>()
 
-    private var syslogSenders: List<Pair<String, TcpSyslogMessageSender>> = emptyList()
+    private lateinit var host: String
+    private lateinit var credentials: X509Credentials
+    private var port by Delegates.notNull<Int>()
+    private lateinit var context: CoroutineContext
 
-    fun connect() {
-        log.info { "Connecting to Devo at $host:$port with $connections clients" }
-        syslogSenders = (0 until connections).map {
-            "$host:$port-$it" to TcpSyslogMessageSender().apply {
+    @ObsoleteCoroutinesApi
+    override fun build(config: Config): AttributeOutput {
+        host = config.getString("host")
+        port = config.getInt("port")
+        credentials = X509Credentials(
+            config.getString("keystore"),
+            config.getString("keystorePass"),
+            mapOf("chain" to config.getString("chain"))
+        )
+        val threads = config.getInt("threads")
+        context = newFixedThreadPoolContext(threads, "write-threads")
+        return this
+    }
+
+    private fun getSender(thread: String): TcpSyslogMessageSender {
+        return if (syslogSenders.containsKey(thread)) {
+            syslogSenders[thread]!!
+        } else {
+            log.info { "Connecting to Devo at $host:$port with thread $thread" }
+            TcpSyslogMessageSender().apply {
                 syslogServerHostname = host
                 syslogServerPort = port
                 defaultAppName = tag
                 isSsl = true
                 sslContext = credentials.sslContext
+            }.also {
+                syslogSenders[thread] = it
             }
         }
     }
@@ -50,12 +71,12 @@ class DevoAttributeOutput(
 
     @ObsoleteCoroutinesApi
     @Suppress("BlockingMethodInNonBlockingContext")
-    private suspend fun sendMessageAsync(message: String) = withContext(Dispatchers.IO) {
-        async {
-            val (name, sender) = syslogSenders.random()
-            log.info { "Sending ${message.length} bytes with $name" }
-            sender.sendMessage(message)
-            log.info { "Finished sending ${message.length} bytes" }
+    private suspend fun sendMessage(message: String) = withContext(context) {
+        launch {
+            val thread = Thread.currentThread().name
+            log.debug { "Sending ${message.length} bytes with $thread" }
+            getSender(thread).sendMessage(message)
+            log.debug { "Finished sending ${message.length} bytes" }
         }
     }
 
@@ -73,17 +94,13 @@ class DevoAttributeOutput(
 
     @InternalCoroutinesApi
     @ObsoleteCoroutinesApi
-    override suspend fun write(eventUpdate: EventUpdate) = coroutineScope {
-        if (syslogSenders.isEmpty()) {
-            throw AttributeOutput.WriteException("DevoAttributeOutput must be connected before writing")
-        } else {
-            getDevoAttributesFromEvent(eventUpdate).map {
-                log.info { "Writing event: ${it.event.uuid}, attribute: ${it.attribute.uuid}" }
+    override suspend fun write(feed: String, eventUpdate: EventUpdate) = coroutineScope {
+        getDevoAttributesFromEvent(eventUpdate).map {
+            async {
+                log.info { "Writing feed: $feed, event: ${it.event.uuid}, attribute: ${it.attribute.uuid}" }
                 serializeDevoAttribute(it)
-            }.map { sendMessageAsync(it) }.collect {
-                it.await()
             }
-        }
+        }.map { sendMessage(it.await()) }.collect { it.join() }
     }
 
     @Suppress("TooGenericExceptionCaught")

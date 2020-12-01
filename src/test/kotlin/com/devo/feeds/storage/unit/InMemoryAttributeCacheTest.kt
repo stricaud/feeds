@@ -1,5 +1,6 @@
 package com.devo.feeds.storage.unit
 
+import com.devo.feeds.storage.AttributeCache
 import com.devo.feeds.storage.InMemoryAttributeCache
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
@@ -8,11 +9,11 @@ import org.junit.Test
 
 class InMemoryAttributeCacheTest {
 
-    private lateinit var cache: InMemoryAttributeCache
+    private lateinit var cache: AttributeCache
 
     @Before
     fun setUp() {
-        cache = InMemoryAttributeCache()
+        cache = InMemoryAttributeCache().build()
     }
 
     @Test

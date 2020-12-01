@@ -2,8 +2,8 @@ package com.devo.feeds.feed
 
 import com.devo.feeds.data.misp.Attribute
 import com.devo.feeds.data.misp.Event
-import com.devo.feeds.storage.AttributeCache
 import com.devo.feeds.output.EventUpdate
+import com.devo.feeds.storage.AttributeCache
 import com.fasterxml.uuid.Generators
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -50,6 +50,10 @@ abstract class Feed(spec: FeedSpec) {
         event.attributes.filterNot { attr ->
             attributeCache.attributeHasSent(name, event.id!!, attr.uuid!!)
         }
+
+    fun markAttributeSent(eventId: String, uuid: String) {
+        attributeCache.markAttributeSent(name, eventId, uuid)
+    }
 
     internal fun ensureIds(event: Event): Event {
         val eventWithIds = ensureEventIDs(event)

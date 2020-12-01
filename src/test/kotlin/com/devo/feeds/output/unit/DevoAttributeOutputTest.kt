@@ -4,15 +4,15 @@ import com.devo.feeds.TestSyslogServer
 import com.devo.feeds.data.misp.Attribute
 import com.devo.feeds.data.misp.DevoMispAttribute
 import com.devo.feeds.data.misp.Event
-import com.devo.feeds.storage.AttributeCache
-import com.devo.feeds.storage.InMemoryAttributeCache
 import com.devo.feeds.output.DevoAttributeOutput
 import com.devo.feeds.output.EventUpdate
-import com.devo.feeds.output.X509Credentials
+import com.devo.feeds.storage.AttributeCache
+import com.devo.feeds.storage.InMemoryAttributeCache
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.endsWith
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.greaterThan
+import com.typesafe.config.ConfigFactory
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -29,19 +29,28 @@ class DevoAttributeOutputTest {
     private lateinit var server: TestSyslogServer
     private lateinit var output: DevoAttributeOutput
 
+    @ObsoleteCoroutinesApi
     @Before
     fun setUp() {
         server = TestSyslogServer()
-        attributeCache = InMemoryAttributeCache()
+        attributeCache = InMemoryAttributeCache().build()
         val loader = javaClass.classLoader
-        val credentials = X509Credentials(
-            loader.getResourceAsStream("clienta.p12")!!, "changeit",
-            mapOf("test" to loader.getResourceAsStream("rootCA.crt")!!)
-        )
-        output = DevoAttributeOutput("localhost", server.port, credentials, 1)
         Thread(server).start()
         server.waitUntilStarted()
-        output.connect()
+        output = DevoAttributeOutput().also {
+            it.build(
+                ConfigFactory.parseMap(
+                    mapOf(
+                        "host" to "localhost",
+                        "port" to server.port,
+                        "chain" to loader.getResource("rootCA.crt")!!.path,
+                        "keystore" to loader.getResource("clienta.p12")!!.path,
+                        "keystorePass" to "changeit",
+                        "threads" to 1
+                    )
+                )
+            )
+        }
     }
 
     @After
@@ -62,7 +71,7 @@ class DevoAttributeOutputTest {
             attributes = (0 until attributeCount).map { Attribute(eventId = eventId, id = it.toString()) }
         )
         runBlocking {
-            output.write(EventUpdate(testEvent, testEvent.attributes))
+            output.write("feed", EventUpdate(testEvent, testEvent.attributes))
         }
         assertThat(server.receivedMessages.size, greaterThan(0))
         await().until { server.receivedMessages.size == attributeCount }

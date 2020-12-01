@@ -8,7 +8,6 @@ import com.devo.feeds.data.misp.FeedConfig
 import com.devo.feeds.data.misp.ManifestEvent
 import io.ktor.application.call
 import io.ktor.http.ContentType
-import io.ktor.response.respondBytes
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.routing
@@ -24,8 +23,21 @@ class MispFeedServer {
     var csvEvents = 50
     var attributesPerEvent = 5
 
-    val manifest = (0 until manifestEvents).map { it.toString() to ManifestEvent() }.toMap()
-    val csv = (0 until csvEvents).joinToString("\n") { it.toString() }
+    var feeds = (0 until feedCount).map {
+        val id = it.toString()
+        FeedAndTag(
+            FeedConfig(
+                id = id,
+                name = id,
+                provider = id,
+                url = "http://localhost:$port/$id",
+                enabled = true,
+                sourceFormat = "misp"
+            )
+        )
+    }
+    var manifest = (0 until manifestEvents).map { it.toString() to ManifestEvent() }.toMap()
+    var csv = (0 until csvEvents).joinToString("\n") { it.toString() }
 
     private val server = embeddedServer(Netty, port = port) {
         routing {
@@ -47,19 +59,6 @@ class MispFeedServer {
                 call.respondText(csv, ContentType.Application.Json)
             }
             get("/feeds") {
-                val feeds = (0 until feedCount).map {
-                    val id = it.toString()
-                    FeedAndTag(
-                        FeedConfig(
-                            id = id,
-                            name = id,
-                            provider = id,
-                            url = "http://localhost:$port/$id",
-                            enabled = true,
-                            sourceFormat = "misp"
-                        )
-                    )
-                }
                 call.respondText(Json.encodeToString(feeds), ContentType.Application.Json)
             }
         }
