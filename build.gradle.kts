@@ -4,8 +4,9 @@ plugins {
     kotlin("jvm") version Versions.kotlinVersion
     kotlin("plugin.serialization") version Versions.kotlinVersion
     id("org.jetbrains.dokka") version Versions.kotlinVersion
-    id("io.gitlab.arturbosch.detekt") version ("1.14.2")
-    id("io.wusa.semver-git-plugin") version ("2.3.0")
+    id("io.gitlab.arturbosch.detekt") version "1.14.2"
+    id("io.wusa.semver-git-plugin") version "2.3.0"
+    id("com.adarshr.test-logger") version "2.1.1"
 }
 
 group = "com.devo"
