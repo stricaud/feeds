@@ -5,6 +5,7 @@ import mu.KotlinLogging
 import org.awaitility.Awaitility.await
 import java.net.SocketException
 import java.security.cert.X509Certificate
+import java.time.Duration
 import java.util.Collections
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLException
@@ -52,7 +53,7 @@ class TestSyslogServer(val port: Int = NetworkUtils.findAvailablePort()) : Runna
     }
 
     fun waitUntilStarted() {
-        await().until { isRunning }
+        await().atMost(Duration.ofSeconds(30)).until { isRunning }
     }
 
     fun stop() {

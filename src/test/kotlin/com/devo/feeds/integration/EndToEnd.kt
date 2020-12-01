@@ -94,7 +94,7 @@ class EndToEnd {
 
         // Assert all events come through
         val expectedAttributeCount = mispServer.feedCount * mispServer.attributesPerEvent * mispServer.manifestEvents
-        await().atMost(Duration.ofSeconds(30)).until { outputServer.receivedMessages.size == expectedAttributeCount }
+        await().atMost(Duration.ofSeconds(300)).until { outputServer.receivedMessages.size == expectedAttributeCount }
         val byEventId = outputServer.receivedMessages.map { (_, message) ->
             val bodyStart = message.indexOf('{')
             Json.decodeFromString<DevoMispAttribute>(message.substring(bodyStart, message.length))
@@ -121,7 +121,7 @@ class EndToEnd {
                 )
             )
 
-        await().atMost(Duration.ofSeconds(30)).until { outputServer.receivedMessages.size == 750 }
+        await().atMost(Duration.ofSeconds(300)).until { outputServer.receivedMessages.size == 750 }
 
         runBlocking {
             service.stop()
